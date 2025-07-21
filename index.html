@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LCOE Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<style>
+:root {
+  --primary: #6200ee;
+  --surface: #ffffff;
+  --on-surface: #333333;
+  --highlight: #03dac6;
+  --border: #e0e0e0;
+  --shadow: rgba(0, 0, 0, 0.15);
+  --radius: 8px;
+  --spacing: 1rem;
+  --font-base: 'Roboto', sans-serif;
+  --btn-color: #17A589;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--spacing);
+  background: #f2f2f2;
+  font-family: var(--font-base);
+}
+.container {
+  display: flex;
+  gap: var(--spacing);
+  width: 100%;
+  max-width: 1200px;
+  align-items: flex-start;
+}
+#lcoe-calculator {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px var(--shadow);
+  flex: none;
+  width: 350px;
+  padding: calc(var(--spacing) * 1.75);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+#lcoe-calculator:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px var(--shadow);
+}
+#lcoe-calculator h2,
+#lcoe-calculator h3 {
+  margin-bottom: var(--spacing);
+  font-weight: 500;
+  font-size: 1.5rem;
+  text-align: center;
+  color: var(--on-surface);
+}
+.field { margin-bottom: var(--spacing); }
+.field label {
+  display: block;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+.field input {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.field input:focus {
+  border-color: var(--highlight);
+  box-shadow: 0 0 0 3px rgba(3, 218, 198, 0.2);
+  outline: none;
+}
+#calculateLCOE, #addToGraphBtn {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--btn-color);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  margin-top: var(--spacing);
+  display: block;
+  text-align: center;
+}
+#addToGraphBtn { display: none; }
+#calculateLCOE:hover, #addToGraphBtn:hover { background: #148d74; }
+#calculateLCOE:active, #addToGraphBtn:active { transform: scale(0.98); }
+#lcoeResult {
+  margin-top: var(--spacing);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  text-align: center;
+}
+#lcoeInterpretation {
+  margin-top: 0.5rem;
+  font-style: italic;
+  color: #666;
+  text-align: center;
+}
+#chart-container {
+  flex: 1;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px var(--shadow);
+  padding: calc(var(--spacing) * 1.75);
+}
+#lcoeChart {
+  width: 100% !important;
+  height: 400px !important;
+}
+#nameModal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  justify-content: center;
+  align-items: center;
+  width:100%; height:100%;
+  background-color: rgba(0,0,0,0.3);
+}
+#nameModalContent {
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: 0px 4px 12px var(--shadow);
+  width: 375px;
+  text-align: center;
+}
+#nameInput {
+  width: 100%; padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: var(--radius);
+  border:1px solid var(--border);
+}
+#confirmNameBtn {
+  padding: 0.5rem 1rem;
+  background: var(--btn-color);
+  color:#fff;
+  border:none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+#confirmNameBtn:hover {
+  background: #148d74;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="lcoe-calculator">
+    <h2>LCOE Calculator</h2>
+    <div class="field"><label for="capitalCost">Total Capital Cost (€ / $)</label><input type="number" id="capitalCost" value="0" step="any" /></div>
+    <div class="field"><label for="annualOpex">Annual Operational Cost (€ / $)</label><input type="number" id="annualOpex" value="0" step="any" /></div>
+    <div class="field"><label for="fuelCost">Annual Fuel Cost (€ / $)</label><input type="number" id="fuelCost" value="0" step="any" /></div>
+    <div class="field"><label for="lifetimeYears">Project Lifetime (years)</label><input type="number" id="lifetimeYears" value="0" min="1" step="1" /></div>
+    <div class="field"><label for="discountRate">Discount Rate (%)</label><input type="number" id="discountRate" value="0" min="0" step="any" /></div>
+    <div class="field"><label for="annualEnergyOutput">Annual Energy Output (kWh)</label><input type="number" id="annualEnergyOutput" value="0" step="any" /></div>
+    <button id="calculateLCOE">Calculate LCOE</button>
+    <div id="lcoeResult"></div>
+    <div id="lcoeInterpretation"></div>
+    <button id="addToGraphBtn">Add to graph</button>
+  </div>
+  <div id="chart-container">
+    <h3>Compare systems</h3>
+    <canvas id="lcoeChart"></canvas>
+  </div>
+</div>
+<div id="nameModal">
+  <div id="nameModalContent">
+    <h3>Name this system:</h3>
+    <input type="text" id="nameInput" placeholder="Enter a name" />
+    <br /><br />
+    <button id="confirmNameBtn">Add</button>
+  </div>
+</div>
+<script>
+function calculateLCOE(capex, opex, fuel, lifetime, discount, energyOutput) {
+  let discountedCosts = capex;
+  for (let year = 1; year <= lifetime; year++) {
+    discountedCosts += (opex + fuel) / Math.pow(1 + discount, year);
+  }
+  let discountedEnergy = 0;
+  for (let year = 1; year <= lifetime; year++) {
+    discountedEnergy += energyOutput / Math.pow(1 + discount, year);
+  }
+  return discountedCosts / discountedEnergy;
+}
+function interpretLCOE(lcoe) {
+  if (lcoe < 0.05) return "Excellent — very low cost, highly competitive energy.";
+  else if (lcoe < 0.10) return "Good — cost-effective and competitive in most markets.";
+  else if (lcoe < 0.15) return "Moderate — may be viable depending on subsidies or incentives.";
+  else if (lcoe < 0.25) return "High — likely expensive, cost reduction needed for competitiveness.";
+  else return "Very high — generally not competitive; reconsider project economics.";
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const chartCtx = document.getElementById('lcoeChart').getContext('2d');
+  const shades = ['#17A589', '#148d74', '#03dac6', '#01b59f', '#179e87'];
+  const lcoeChart = new Chart(chartCtx, {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        backgroundColor: [],
+        borderColor: [],
+        borderWidth: []
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: '€ / $ per kWh' } } }
+    }
+  });
+  let lastLCOE = null;
+  const resultEl = document.getElementById('lcoeResult');
+  const addBtn = document.getElementById('addToGraphBtn');
+  const calcBtn = document.getElementById('calculateLCOE');
+  const nameModal = document.getElementById('nameModal');
+  const nameInput = document.getElementById('nameInput');
+  const confirmNameBtn = document.getElementById('confirmNameBtn');
+  let selectedIndex = null;
+
+  calcBtn.addEventListener('click', () => {
+    const capex = parseFloat(document.getElementById("capitalCost").value);
+    const opex = parseFloat(document.getElementById("annualOpex").value);
+    const fuel = parseFloat(document.getElementById("fuelCost").value);
+    const lifetime = parseInt(document.getElementById("lifetimeYears").value, 10);
+    const discount = parseFloat(document.getElementById("discountRate").value) / 100;
+    const energy = parseFloat(document.getElementById("annualEnergyOutput").value);
+    if (isNaN(capex)|| isNaN(opex)|| isNaN(fuel)|| isNaN(lifetime)|| isNaN(discount)|| isNaN(energy)) {
+      return alert("Please enter valid numeric values in all fields.");
+    }
+    if (lifetime < 1) return alert("Project lifetime must be at least 1 year.");
+    if (discount < 0) return alert("Discount rate cannot be negative.");
+    if (energy <= 0) return alert("Annual energy output must be greater than zero.");
+    const lcoe = calculateLCOE(capex, opex, fuel, lifetime, discount, energy);
+    resultEl.textContent = `Levelized Cost of Energy (LCOE): €${lcoe.toFixed(4)} per kWh`;
+    document.getElementById('lcoeInterpretation').textContent = interpretLCOE(lcoe);
+    lastLCOE = lcoe.toFixed(4);
+    addBtn.style.display = 'block';
+  });
+  addBtn.addEventListener('click', () => {
+    nameInput.value = '';
+    nameModal.style.display = 'flex';
+  });
+  confirmNameBtn.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    if (!name) return;
+    const idx = lcoeChart.data.labels.length % shades.length;
+    lcoeChart.data.labels.push(name);
+    lcoeChart.data.datasets[0].data.push(parseFloat(lastLCOE));
+    lcoeChart.data.datasets[0].backgroundColor.push(shades[idx]);
+    lcoeChart.data.datasets[0].borderColor.push('transparent');
+    lcoeChart.data.datasets[0].borderWidth.push(0);
+    lcoeChart.update();
+    nameModal.style.display = 'none';
+    addBtn.style.display = 'none';
+  });
+  document.getElementById('lcoeChart').addEventListener('click', (event) => {
+    const points = lcoeChart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
+    if (points.length) {
+      selectedIndex = points[0].index;
+      // Reset all borders
+      lcoeChart.data.datasets[0].borderWidth = lcoeChart.data.datasets[0].data.map(() => 0);
+      lcoeChart.data.datasets[0].borderColor = lcoeChart.data.datasets[0].data.map(() => 'transparent');
+      // Highlight selected bar
+      lcoeChart.data.datasets[0].borderWidth[selectedIndex] = 5;
+      lcoeChart.data.datasets[0].borderColor[selectedIndex] = '#000';
+      lcoeChart.update();
+    } else {
+      selectedIndex = null;
+      // Clear highlights
+      lcoeChart.data.datasets[0].borderWidth = lcoeChart.data.datasets[0].data.map(() => 0);
+      lcoeChart.data.datasets[0].borderColor = lcoeChart.data.datasets[0].data.map(() => 'transparent');
+      lcoeChart.update();
+    }
+  });
+  document.addEventListener('keydown', (event) => {
+    if ((event.key === 'Backspace' || event.key === 'Delete') && selectedIndex !== null) {
+      lcoeChart.data.labels.splice(selectedIndex, 1);
+      lcoeChart.data.datasets[0].data.splice(selectedIndex, 1);
+      lcoeChart.data.datasets[0].backgroundColor.splice(selectedIndex, 1);
+      lcoeChart.data.datasets[0].borderColor.splice(selectedIndex, 1);
+      lcoeChart.data.datasets[0].borderWidth.splice(selectedIndex, 1);
+      lcoeChart.update();
+      selectedIndex = null;
+    }
+  });
+});
+</script>
+</body>
+</html>
