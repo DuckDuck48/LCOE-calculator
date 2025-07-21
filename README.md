@@ -1,23 +1,27 @@
-# LCOE-calculator
-Levelized Costs of Energy Calculator
+# Levelized Cost of Energy (LCOE) Calculator
 
-I used this LCOE calculator while working on a uni project (im not studing energy), since I used it quite often, and it honestly saved me hours, I felt like i should thank them..
+I came across this LCOE calculator while working on a university project (I'm not studying energy, by the way). It ended up saving me a lot of time, so I wanted to share it.
 
-If you’re comparing things like solar vs wind, or diesel vs hydro, it helps you figure out the real cost per kilowatt-hour over a system’s lifetime (most of you propably know this already)
-What it does:
+If you're comparing things like solar vs wind, or diesel vs hydro, this tool helps you figure out the real cost per kilowatt-hour over a system’s lifetime.(but you probably already know this)
 
-You enter your capital cost, operating costs, system lifetime, discount rate, and annual energy output. It calculates the LCOE for you, thats it.
+### What It Does
 
-There’s also a chart tool to line up multiple systems side-by-side, which I found quite helpful for presentations.
-So quickly why I would recommend it:
+You enter your:
+- Capital cost
+- Operating and fuel costs
+- System lifetime
+- Discount rate
+- Annual energy output
 
-    Makes this whole LCOE math simple
+And it calculates the Levelized Cost of Energy for you, that's it. There’s also a chart feature to compare multiple systems side-by-side, which was quite useful for keeping track of everything.
 
-    Great for feasibility studies or quick comparisons
+### Why I Recommend It
 
-    And most important, no dump sign-ups!
+- Makes LCOE calculations easy
+- Great for feasibility studies and quick comparisons
+- No annoying sign-ups or logins
+- Works in € or $
 
-Here’s the link if you want to try it:
-https://ovatrix.com/the-levelized-costs-of-energy-calculator/
+ **Try it here**: [https://ovatrix.com/the-levelized-costs-of-energy-calculator/](https://ovatrix.com/the-levelized-costs-of-energy-calculator/)
 
-Big thanks to the people at Ovatrix for making this genuinely saved me.
+Big thanks to the folks at Ovatrix, genuinely saved me.
