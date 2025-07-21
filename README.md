@@ -20,7 +20,6 @@ And it calculates the Levelized Cost of Energy for you, that's it. There’s als
 - Makes LCOE calculations easy
 - Great for feasibility studies and quick comparisons
 - No annoying sign-ups or logins
-- Works in € or $
 
  **Try it here**: [https://ovatrix.com/the-levelized-costs-of-energy-calculator/](https://ovatrix.com/the-levelized-costs-of-energy-calculator/)
 
